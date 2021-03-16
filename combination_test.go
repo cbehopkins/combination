@@ -162,21 +162,3 @@ func TestAutoCombination_4_2(t *testing.T) {
 		t.Error("There should have been no missing values")
 	}
 }
-
-func TestWithStrings(t *testing.T) {
-	refArray := []string{"bob", "fred", "steve"}
-	dstArray := make([]string, len(refArray))
-	copyFunc := func(i, j int) {
-		dstArray[i] = refArray[j]
-	}
-	gc := NewGeneric(len(refArray), 2, copyFunc)
-	cnt := 0
-	for err := gc.Next(); err == nil; err = gc.Next() {
-		//dstArray will not have stuff in it
-		t.Log(dstArray)
-		cnt++
-	}
-	if cnt != 3 {
-		t.Error("Cnt should be 3, was:", cnt)
-	}
-}

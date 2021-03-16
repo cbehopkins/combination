@@ -77,29 +77,3 @@ func (c Combination) bob(srcChan, dstChan chan []int) {
 	close(dstChan)
 
 }
-
-type GenericCombination struct {
-	resultChan <-chan []int
-	copyFunc   func(int, int)
-}
-
-func NewGeneric(src, dst int, copyFunc func(int, int)) *GenericCombination {
-	v := new(GenericCombination)
-	v.resultChan = NewCombChannelLen(src, dst)
-	v.copyFunc = copyFunc
-	return v
-}
-
-func (gc GenericCombination) Next() error {
-	if gc.copyFunc == nil {
-		return MissingCopyFuncError
-	}
-	resArray, ok := <-gc.resultChan
-	if !ok {
-		return ItterationCompleteError
-	}
-	for i, v := range resArray {
-		gc.copyFunc(i, v)
-	}
-	return nil
-}
