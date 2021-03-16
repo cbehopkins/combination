@@ -1,15 +1,14 @@
 package combination
 
 type GenericWorker struct {
-	todo <-chan []int
+	todo <-chan []Position
 }
 
 type CombinationGenericInterface interface {
-	// Len() int
 	CopyElement(src int, dst int)
 }
 
-func NewGenericWorker(todo <-chan []int) *GenericWorker {
+func NewGenericWorker(todo <-chan []Position) *GenericWorker {
 	v := new(GenericWorker)
 	v.todo = todo
 	return v
@@ -20,13 +19,13 @@ func (g GenericWorker) Next(dstArray CombinationGenericInterface) error {
 		return ItterationCompleteError
 	}
 	for dst, src := range populateFrom {
-		dstArray.CopyElement(src, dst)
+		dstArray.CopyElement(int(src), int(dst))
 	}
 	return nil
 }
 
 type GenericCombination struct {
-	resultChan <-chan []int
+	resultChan <-chan []Position
 	copyFunc   func(int, int)
 }
 
@@ -46,7 +45,7 @@ func (gc GenericCombination) Next() error {
 		return ItterationCompleteError
 	}
 	for i, v := range resArray {
-		gc.copyFunc(i, v)
+		gc.copyFunc(i, int(v))
 	}
 	return nil
 }

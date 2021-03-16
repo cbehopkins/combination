@@ -13,7 +13,7 @@ func (rc resultChecker) add(ip []int) {
 	v++
 	rc[key] = v
 }
-func (rc resultChecker) tst(ip []int) bool {
+func (rc resultChecker) tst(ip []Position) bool {
 	key := fmt.Sprint(ip)
 	v, ok := rc[key]
 	v--
@@ -28,7 +28,7 @@ func (rc resultChecker) tst(ip []int) bool {
 }
 func runSimpleTest(length int, t *testing.T, expectedResults resultChecker) (missingCnt int) {
 	tmp := NewCombination(length)
-	resultChan := make(chan []int)
+	resultChan := make(chan []Position)
 	go tmp.ToChannel(resultChan)
 	for v := range resultChan {
 		t.Log("Got:", v)

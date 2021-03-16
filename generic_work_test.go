@@ -37,6 +37,10 @@ func TestWithStringArray(t *testing.T) {
 	}
 }
 
+// TODO: Add a self checking test that checks larger arrays
+// Done correctly we will be able to pair ech combination
+// once and only once - so create a scoreboard for this
+
 func TestWithStrings(t *testing.T) {
 	refArray := []string{"bob", "fred", "steve"}
 	dstArray := make([]string, len(refArray))
