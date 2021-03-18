@@ -1,14 +1,16 @@
 package combination
 
+type ToDoChan chan []Position
+type ToDoChanR <-chan []Position
 type GenericWorker struct {
-	todo <-chan []Position
+	todo ToDoChanR
 }
 
 type CombinationGenericInterface interface {
 	CopyElement(src int, dst int)
 }
 
-func NewGenericWorker(todo <-chan []Position) *GenericWorker {
+func NewGenericWorker(todo ToDoChanR) *GenericWorker {
 	v := new(GenericWorker)
 	v.todo = todo
 	return v
@@ -25,7 +27,7 @@ func (g GenericWorker) Next(dstArray CombinationGenericInterface) error {
 }
 
 type GenericCombination struct {
-	resultChan <-chan []Position
+	resultChan ToDoChanR
 	copyFunc   func(int, int)
 }
 
@@ -43,6 +45,24 @@ func (gc GenericCombination) Next() error {
 	resArray, ok := <-gc.resultChan
 	if !ok {
 		return ItterationCompleteError
+	}
+	for i, v := range resArray {
+		gc.copyFunc(i, int(v))
+	}
+	return nil
+}
+
+func (gc GenericCombination) NextSkipN(n int) error {
+	if gc.copyFunc == nil {
+		return MissingCopyFuncError
+	}
+	var resArray []Position
+	var ok bool
+	for i := 0; i < n; i++ {
+		resArray, ok = <-gc.resultChan
+		if !ok {
+			return ItterationCompleteError
+		}
 	}
 	for i, v := range resArray {
 		gc.copyFunc(i, int(v))
