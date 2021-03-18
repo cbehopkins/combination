@@ -9,7 +9,7 @@ type resultChecker map[string]int
 
 func (rc resultChecker) add(ip []int) {
 	key := fmt.Sprint(ip)
-	v, _ := rc[key]
+	v := rc[key]
 	v++
 	rc[key] = v
 }
@@ -28,7 +28,7 @@ func (rc resultChecker) tst(ip []Position) bool {
 }
 func runSimpleTest(length int, t *testing.T, expectedResults resultChecker) (missingCnt int) {
 	tmp := NewCombination(length)
-	resultChan := make(chan []Position)
+	resultChan := make(chan ToDo)
 	go tmp.ToChannel(resultChan)
 	for v := range resultChan {
 		t.Log("Got:", v)
