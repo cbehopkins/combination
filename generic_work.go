@@ -1,5 +1,7 @@
 package combination
 
+import "math/rand"
+
 type GenericWorker struct {
 	todo <-chan ToDo
 }
@@ -29,13 +31,30 @@ type GenericCombination struct {
 	copyFunc   func(int, int)
 }
 
-func NewGeneric(src, dst int, copyFunc func(int, int)) *GenericCombination {
+func NewGenericFromChan(ch <-chan ToDo, copyFunc func(int, int)) *GenericCombination {
 	v := new(GenericCombination)
-	v.resultChan = NewCombChannelLen(src, dst)
+	v.resultChan = ch
 	v.copyFunc = copyFunc
 	return v
 }
-
+func NewGeneric(src, dst int, copyFunc func(int, int)) *GenericCombination {
+	return NewGenericFromChan(NewCombChannelLen(src, dst), copyFunc)
+}
+func RandomToDoSource(cnt, srcLen, dstLen int) <-chan ToDo {
+	todoChan := make(chan ToDo)
+	go func() {
+		for i := 0; i < cnt; i++ {
+			tmp := rand.Perm(srcLen)
+			tmpP := make(ToDo, dstLen)
+			for j := 0; j < dstLen; j++ {
+				tmpP[j] = Position(tmp[j])
+			}
+			todoChan <- tmpP
+		}
+		close(todoChan)
+	}()
+	return todoChan
+}
 func (gc GenericCombination) Next() error {
 	if gc.copyFunc == nil {
 		return ErrMissingCopyFunc
@@ -54,7 +73,7 @@ func (gc GenericCombination) NextSkipN(n int) error {
 	if gc.copyFunc == nil {
 		return ErrMissingCopyFunc
 	}
-	var resArray []Position
+	var resArray ToDo
 	var ok bool
 	for i := 0; i < n; i++ {
 		resArray, ok = <-gc.resultChan

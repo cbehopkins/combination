@@ -1,15 +1,34 @@
 package combination
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 var ErrItterationComplete = errors.New("exhausted itterator")
 var ErrMissingCopyFunc = errors.New("no copy func supplied")
 
 type Position int
 type ToDo []Position
-type ToDoChan chan ToDo
-type ToDoChanT chan<- ToDo
-type ToDoChanR <-chan ToDo
+
+var ErrToDoTooLong = errors.New("ToDo is too long for hash")
+var ErrToDoOutOfRange = errors.New("To Do is out of range")
+
+func (td ToDo) Hash() (uint64, error) {
+	if len(td) > 8 {
+		return 0, ErrToDoTooLong
+	}
+	var sum uint64
+	for i := 0; i < len(td); i++ {
+		if td[i] > 255 {
+			return 0, fmt.Errorf("Got Position %d which is improbable, and not Hashable %w", td[i], ErrToDoOutOfRange)
+		}
+		sum <<= 8
+		sum += uint64(td[i] & 255)
+	}
+
+	return sum, nil
+}
 
 type Combination struct {
 	len int
